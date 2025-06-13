@@ -3,6 +3,8 @@ import React from "react";
 import { dummyCourses } from "../assets/assets";
 import { useNavigate } from "react-router-dom";
 import humanizeDuration from "humanize-duration";
+import {useAuth, useUser} from "@clerk/clerk-react"
+
 
 export const AppContext=createContext()
 
@@ -13,6 +15,10 @@ export const AppContextProvider=(props) =>{
 
   //to click on logo then its navigate to home page
   const navigate=useNavigate();
+
+  //token create for authentication
+   const {getToken}=useAuth()
+   const {user}=useUser()
 
    //to display card for this
    const[allCourses,setAllCourses]=useState([])
@@ -87,6 +93,18 @@ useEffect(() => {
   fetchAllCourses();
   fetchUserEnrolledCourses();
 }, []);
+
+const logToken=async()=>{
+  console.log(await getToken());
+}
+
+//gettoken
+useEffect(()=>{
+  if(user){
+  logToken()
+  }
+},[user])
+
 
 // Context value object
 const value = {
