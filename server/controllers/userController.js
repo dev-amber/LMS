@@ -22,18 +22,29 @@ export const getUserData=async(req,res)=>{
 }
 
 //nuser enrolled courses with lecture link
-
-export const userEnrolledCourses=async(req,res)=>{
-    try {
-          const userId=req.auth.userId
-        const userData=await User.findById(userId).populate('enrolledCourses');
-
-         res.json({success: true, enrolledCourses: userData.enrolledCourses})
-
-    } catch (error) {
-         return res.json({success: false,message:error.message })
+export const userEnrolledCourses = async (req, res) => {
+  try {
+    const userId = req.auth.userId;
+     if (!userId) {
+      return res.status(401).json({ success: false, message: 'Unauthorized: Missing user ID' });
     }
-}
+
+    const userData = await User.findById(userId).populate('enrolledCourses'); // ✅ Populates inline
+
+    if (!userData) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+   
+
+
+    res.json({ success: true, enrolledCourses: userData.enrolledCourses });
+  } catch (error) {
+    console.error('Error:', error);
+    return res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+
 
 
 // purchase  course

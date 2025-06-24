@@ -3,16 +3,42 @@ import { assets } from '../../assets/assets'
 import {Link} from "react-router-dom"
 import { useClerk,UserButton,useUser } from '@clerk/clerk-react'
 import { AppContext } from '../../context/AppContext'
+import { toast } from 'react-toastify'
+import axios from 'axios'
+
 
 
 const Navbar = () => {
 
-  const {navigate,isEducator}=useContext(AppContext);
+  const {navigate,isEducator,backendUrl, setIsEducator,getToken}=useContext(AppContext);
   
   const isCourseListPage=location.pathname.includes('/course-list'); // is its true then its bg color white if its false then bg color chnge this line means
 
   const {openSignIn}=useClerk();
   const {user}=useUser();
+
+  // if i click become educator then educate this course
+  const becomeEducator=async()=>{
+    try {
+      // its means user have already educator
+      if(isEducator){
+        navigate("/educator")
+        return;
+      }
+      const token=await getToken()
+      const {data}=await axios.get(backendUrl + "/api/educator/update-role",
+      {headers:{Authorization: `Bearer ${token}`}})
+
+      if(data.success){
+      setIsEducator(true)
+      toast.success(data.message)
+      }else{
+        toast.error(data.message)
+      }
+    } catch (error) {
+      toast.error(error.message)
+    }
+  }
 
 
   return (
@@ -27,7 +53,7 @@ const Navbar = () => {
           
           {user && 
           <>
-            <button onClick={()=> {navigate("/educator")}}>{isEducator ? "Educator Dashboard" : "Become Educator"}</button>
+            <button onClick={becomeEducator}>{isEducator ? "Educator Dashboard" : "Become Educator"}</button>
           | <Link to='/my-enrollments'>My Enrollments</Link>
           </>
           }

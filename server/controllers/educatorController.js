@@ -52,6 +52,7 @@ export const addCourse = async (req, res) => {
 };
 
 
+
 //get educator courses
 export const getEducatorCourses=async(req,res)=>{
          try {

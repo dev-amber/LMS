@@ -1,6 +1,7 @@
 import express from "express"
 import { addUserRating, getUserCourseProgress, getUserData, purchaseCourse, updateUserCourseProgress, userEnrolledCourses } from "../controllers/userController.js";
 
+
 const userRouter=express.Router();
 
 userRouter.get("/data",getUserData);
