@@ -22,7 +22,7 @@ await connectCloudinary()
 
 //Middleware
 app.use(cors({
-  origin: "https://lms-fronted-4w69c1jis-dev-amber1s-projects.vercel.app",
+  origin: "https://lms-fronted-eta.vercel.app",
   credentials: true
 }));
 app.use(express.json());
