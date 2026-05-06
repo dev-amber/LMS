@@ -21,7 +21,11 @@ await connectCloudinary()
 
 
 //Middleware
-app.use(cors()) // cors: help to connect our backend in any domain
+app.use(cors({
+  origin: "https://lms-fronted-4w69c1jis-dev-amber1s-projects.vercel.app",
+  credentials: true
+}));
+app.use(express.json());
 app.use(clerkMiddleware())
 
 //Route
