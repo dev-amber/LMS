@@ -22,27 +22,24 @@ const MyEnrollments = () => {
 
   // Fetch full course data from course IDs
   const fetchFullCourseData = async () => {
-    try {
-      setLoading(true);
-      const token = await getToken();
+  try {
+    setLoading(true);
+    const token = await getToken();
 
-      const fullCourses = await Promise.all(
-        enrolledCourses.map(async (courseId) => {
-          const { data } = await axios.get(`${backendUrl}/api/course/enrolled-courses`, {
-            headers: { Authorization: `Bearer ${token}` },
-          });
-          return data.course;
-        })
-      );
+    const { data } = await axios.get(
+      `${backendUrl}/api/user/enrolled-courses`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      }
+    );
 
-      setEnrolledCourses(fullCourses);
-    } catch (error) {
-      toast.error('Failed to fetch full course data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
+    setEnrolledCourses(data.courses);
+  } catch (error) {
+    toast.error("Failed to fetch full course data");
+  } finally {
+    setLoading(false);
+  }
+};
   // Fetch progress for all enrolled courses
   const getCourseProgress = async () => {
     try {
@@ -75,11 +72,11 @@ const MyEnrollments = () => {
     }
   }, [userData, enrolledCourses]);
 
-  useEffect(() => {
-    if (enrolledCourses.length > 0 ) {
-      getCourseProgress();
-    }
-  }, [enrolledCourses]);
+ useEffect(() => {
+  if (userData && enrolledCourses.length > 0) {
+    fetchFullCourseData();
+  }
+}, [userData, enrolledCourses]);
 
   return (
     <>
