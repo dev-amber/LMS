@@ -1,9 +1,9 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../context/AppContext';
-import { Line } from 'rc-progress';
-import Footer from '../../components/student/Footer';
-import { toast } from 'react-toastify';
-import axios from 'axios';
+import React, { useContext, useEffect, useState } from "react";
+import { AppContext } from "../../context/AppContext";
+import { Line } from "rc-progress";
+import Footer from "../../components/student/Footer";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const MyEnrollments = () => {
   const {
@@ -22,24 +22,29 @@ const MyEnrollments = () => {
 
   // Fetch full course data from course IDs
   const fetchFullCourseData = async () => {
-  try {
-    setLoading(true);
-    const token = await getToken();
+    try {
+      setLoading(true);
+      const token = await getToken();
 
-    const { data } = await axios.get(
-      `${backendUrl}/api/user/enrolled-courses`,
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
+      const fullCourses = await Promise.all(
+        enrolledCourses.map(async (courseId) => {
+          const { data } = await axios.get(
+            `${backendUrl}/api/user/enrolled-courses`,
+            {
+              headers: { Authorization: `Bearer ${token}` },
+            },
+          );
+          return data.course;
+        }),
+      );
 
-    setEnrolledCourses(data.courses);
-  } catch (error) {
-    toast.error("Failed to fetch full course data");
-  } finally {
-    setLoading(false);
-  }
-};
+      setEnrolledCourses(fullCourses);
+    } catch (error) {
+      toast.error("Failed to fetch full course data");
+    } finally {
+      setLoading(false);
+    }
+  };
   // Fetch progress for all enrolled courses
   const getCourseProgress = async () => {
     try {
@@ -48,16 +53,18 @@ const MyEnrollments = () => {
       const tempProgressArray = await Promise.all(
         enrolledCourses.map(async (course) => {
           const { data } = await axios.post(
-            backendUrl + '/api/user/get-course-progress',
+            backendUrl + "/api/user/get-course-progress",
             { courseId: course._id },
-            { headers: { Authorization: `Bearer ${token}` } }
+            { headers: { Authorization: `Bearer ${token}` } },
           );
 
           const totalLectures = calculateNoOfLectures(course);
-          const lectureCompleted = data.progressData ? data.progressData.lectureCompleted.length : 0;
+          const lectureCompleted = data.progressData
+            ? data.progressData.lectureCompleted.length
+            : 0;
 
           return { totalLectures, lectureCompleted };
-        })
+        }),
       );
 
       setProgressArray(tempProgressArray);
@@ -67,16 +74,10 @@ const MyEnrollments = () => {
   };
 
   useEffect(() => {
-    if (userData && enrolledCourses.length > 0 ) {
-      fetchFullCourseData();
+    if (enrolledCourses.length > 0) {
+      getCourseProgress();
     }
-  }, [userData, enrolledCourses]);
-
- useEffect(() => {
-  if (userData && enrolledCourses.length > 0) {
-    fetchFullCourseData();
-  }
-}, [userData, enrolledCourses]);
+  }, [enrolledCourses]);
 
   return (
     <>
@@ -84,7 +85,9 @@ const MyEnrollments = () => {
         <h1 className="text-2xl font-semibold">My Enrollments</h1>
 
         {loading ? (
-          <p className="mt-10 text-gray-600">Loading your enrolled courses...</p>
+          <p className="mt-10 text-gray-600">
+            Loading your enrolled courses...
+          </p>
         ) : enrolledCourses.length === 0 ? (
           <div className="mt-10 text-gray-600">
             You haven't enrolled in any course yet.
@@ -118,7 +121,9 @@ const MyEnrollments = () => {
                         className="w-14 sm:w-24 md:w-28"
                       />
                       <div className="flex-1">
-                        <p className="mb-1 max-sm:text-sm">{course.courseTitle}</p>
+                        <p className="mb-1 max-sm:text-sm">
+                          {course.courseTitle}
+                        </p>
                         <Line
                           strokeWidth={2}
                           percent={percentCompleted}
@@ -130,7 +135,7 @@ const MyEnrollments = () => {
                     <td>
                       {progress ? (
                         <>
-                          {progress.lectureCompleted} / {progress.totalLectures}{' '}
+                          {progress.lectureCompleted} / {progress.totalLectures}{" "}
                           <span>Lectures</span>
                         </>
                       ) : (
@@ -139,12 +144,13 @@ const MyEnrollments = () => {
                     </td>
                     <td>
                       <button
-                        onClick={() => navigate('/player/' + course._id)}
+                        onClick={() => navigate("/player/" + course._id)}
                         className="px-3 sm:px-5 py-1.5 sm:py-2 bg-blue-600 max-sm:text-xs text-white"
                       >
-                        {progress && progress.lectureCompleted === progress.totalLectures
-                          ? 'Completed'
-                          : 'On Going'}
+                        {progress &&
+                        progress.lectureCompleted === progress.totalLectures
+                          ? "Completed"
+                          : "On Going"}
                       </button>
                     </td>
                   </tr>
