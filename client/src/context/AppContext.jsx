@@ -19,14 +19,12 @@ export const AppContextProvider = (props) => {
   const [isEducator, setIsEducator] = useState(false);
   const [enrolledCourses, setEnrolledCourses] = useState([]);
   const [userData, setUserData] = useState(null);
- 
-
-  
 
   // Fetch all courses
   const fetchAllCourses = async () => {
     try {
       const { data } = await axios.get(`${backendUrl}/api/course/all`);
+
       if (data.success) {
         setAllCourses(data.courses);
       } else {
@@ -39,14 +37,17 @@ export const AppContextProvider = (props) => {
 
   // Fetch user data
   const fetchUserData = async () => {
-    if(user.publicMetadata.role === 'educator'){
-      setIsEducator(true)
+    if (user.publicMetadata.role === "educator") {
+      setIsEducator(true);
     }
     try {
       const token = await getToken();
       const { data } = await axios.get(`${backendUrl}/api/user/data`, {
-        headers: { Authorization: `Bearer ${token}` },
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
+
       if (data.success) {
         setUserData(data.user);
       } else {
@@ -61,9 +62,12 @@ export const AppContextProvider = (props) => {
   const fetchUserEnrolledCourses = async () => {
     try {
       const token = await getToken();
-      const { data } = await axios.get(`${backendUrl}/api/user/enrolled-courses`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      const { data } = await axios.get(
+        `${backendUrl}/api/user/enrolled-courses`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+        },
+      );
       if (data.success) {
         setEnrolledCourses(data.enrolledCourses.reverse());
       } else {
@@ -77,7 +81,10 @@ export const AppContextProvider = (props) => {
   // Calculate average course rating
   const calculateRating = (course) => {
     if (!course?.courseRatings?.length) return 0;
-    const totalRating = course.courseRatings.reduce((sum, r) => sum + r.rating, 0);
+    const totalRating = course.courseRatings.reduce(
+      (sum, r) => sum + r.rating,
+      0,
+    );
     return Math.floor(totalRating / course.courseRatings.length);
   };
 
@@ -85,7 +92,7 @@ export const AppContextProvider = (props) => {
   const calculateChapterTime = (chapter) => {
     const time = chapter?.chapterContent?.reduce(
       (sum, lecture) => sum + (lecture?.lectureDuration || 0),
-      0
+      0,
     );
     return humanizeDuration(time * 60 * 1000, { units: ["h", "m"] });
   };
@@ -108,7 +115,7 @@ export const AppContextProvider = (props) => {
   const calculateNoOfLectures = (course) => {
     return course?.courseContent?.reduce(
       (sum, chapter) => sum + (chapter.chapterContent?.length || 0),
-      0
+      0,
     );
   };
 
@@ -143,6 +150,7 @@ export const AppContextProvider = (props) => {
     fetchAllCourses,
   };
 
-  return <AppContext.Provider value={value}>
-  {props.children}</AppContext.Provider>;
+  return (
+    <AppContext.Provider value={value}>{props.children}</AppContext.Provider>
+  );
 };
